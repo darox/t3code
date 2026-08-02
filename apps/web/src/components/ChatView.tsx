@@ -314,6 +314,7 @@ import { useAssetUrls } from "../assets/assetUrls";
 
 const IMAGE_ONLY_BOOTSTRAP_PROMPT =
   "[User attached one or more images without additional text. Respond using the conversation context and the attached image(s).]";
+const EMPTY_CHAT_SELECTION_ANNOTATIONS: ReadonlyArray<ChatSelectionAnnotation> = [];
 const EMPTY_ACTIVITIES: OrchestrationThreadActivity[] = [];
 const EMPTY_PROVIDERS: ServerProvider[] = [];
 const EMPTY_PROVIDER_SKILLS: ServerProvider["skills"] = [];
@@ -1247,6 +1248,11 @@ function ChatViewContent(props: ChatViewProps) {
   const composerInteractionMode = useComposerDraftStore(
     (store) => store.getComposerDraft(composerDraftTarget)?.interactionMode ?? null,
   );
+  const composerChatSelectionAnnotations = useComposerDraftStore(
+    (store) =>
+      store.getComposerDraft(composerDraftTarget)?.chatSelectionAnnotations ??
+      EMPTY_CHAT_SELECTION_ANNOTATIONS,
+  );
   const composerActiveProvider = useComposerDraftStore(
     (store) => store.getComposerDraft(composerDraftTarget)?.activeProvider ?? null,
   );
@@ -1264,6 +1270,9 @@ function ChatViewContent(props: ChatViewProps) {
   const setComposerDraftReviewComments = useComposerDraftStore((store) => store.setReviewComments);
   const addComposerDraftChatSelectionAnnotation = useComposerDraftStore(
     (store) => store.addChatSelectionAnnotation,
+  );
+  const removeComposerDraftChatSelectionAnnotation = useComposerDraftStore(
+    (store) => store.removeChatSelectionAnnotation,
   );
   const setComposerDraftChatSelectionAnnotations = useComposerDraftStore(
     (store) => store.setChatSelectionAnnotations,
@@ -2647,6 +2656,29 @@ function ChatViewContent(props: ChatViewProps) {
       scheduleComposerFocus();
     },
     [addComposerDraftChatSelectionAnnotation, composerDraftTarget, scheduleComposerFocus],
+  );
+  const updateChatSelectionAnnotation = useCallback(
+    (annotationId: string, comment: string) => {
+      const annotation = composerChatSelectionAnnotations.find(
+        (candidate) => candidate.id === annotationId,
+      );
+      if (!annotation) return;
+      addComposerDraftChatSelectionAnnotation(composerDraftTarget, {
+        ...annotation,
+        comment,
+      });
+    },
+    [
+      addComposerDraftChatSelectionAnnotation,
+      composerChatSelectionAnnotations,
+      composerDraftTarget,
+    ],
+  );
+  const removeChatSelectionAnnotation = useCallback(
+    (annotationId: string) => {
+      removeComposerDraftChatSelectionAnnotation(composerDraftTarget, annotationId);
+    },
+    [composerDraftTarget, removeComposerDraftChatSelectionAnnotation],
   );
   const setTerminalOpen = useCallback(
     (open: boolean) => {
@@ -5912,6 +5944,9 @@ function ChatViewContent(props: ChatViewProps) {
                 hideEmptyPlaceholder={isDraftHeroState || threadDetailLoading}
                 topFadeEnabled={!hasTimelineTopBanner}
                 onAddChatSelectionAnnotation={addChatSelectionAnnotation}
+                onUpdateChatSelectionAnnotation={updateChatSelectionAnnotation}
+                onRemoveChatSelectionAnnotation={removeChatSelectionAnnotation}
+                chatSelectionAnnotations={composerChatSelectionAnnotations}
               />
 
               {/* scroll to end pill — shown when user has scrolled away from the live edge */}
