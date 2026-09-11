@@ -294,6 +294,26 @@ describe("ChatMarkdown streaming", () => {
 describe("ChatMarkdown Mermaid fences", () => {
   const validDiagram = "flowchart TD\n  start((Start)) --> finish((Finish))";
 
+  it("renders an indented complete Mermaid fence through the lazy diagram component", async () => {
+    vi.stubGlobal("IS_REACT_ACT_ENVIRONMENT", true);
+    let renderer: ReactTestRenderer | undefined;
+    try {
+      await act(async () => {
+        renderer = create(
+          <ChatMarkdown
+            cwd="/tmp/project"
+            text={`\n   \`\`\`mermaid\n   ${validDiagram}\n   \`\`\`\n`}
+          />,
+        );
+      });
+      expect(renderer!.root.findByProps({ "data-mermaid-diagram": "" })).toBeDefined();
+    } finally {
+      await act(async () => renderer?.unmount());
+      vi.unstubAllGlobals();
+      MermaidDiagramMock.mockClear();
+    }
+  });
+
   it("renders a complete Mermaid fence through the lazy diagram component", async () => {
     vi.stubGlobal("IS_REACT_ACT_ENVIRONMENT", true);
     let renderer: ReactTestRenderer | undefined;

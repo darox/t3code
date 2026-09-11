@@ -543,7 +543,7 @@ const FENCE_FILENAME_TOKEN_REGEX = /^[\w@][\w@./-]*\.[A-Za-z0-9]+$/;
 
 /** Uses the code node’s own source range so one incomplete fence cannot hide a completed one. */
 function isCompleteMermaidFenceAt(text: string, offset: number): boolean {
-  const fenceLine = /^(`{3,}|~{3,})(.*)$/;
+  const fenceLine = /^ {0,3}(`{3,}|~{3,})(.*)$/;
   const [openingLine, ...bodyLines] = text.slice(offset).split("\n");
   const opening = fenceLine.exec(openingLine ?? "");
   const openingMarker = opening?.[1] ?? "";
