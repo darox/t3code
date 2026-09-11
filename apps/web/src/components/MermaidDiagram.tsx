@@ -35,6 +35,7 @@ async function getMermaid(appearance: MermaidAppearance): Promise<Mermaid> {
     mermaid.initialize({
       securityLevel: "strict",
       startOnLoad: false,
+      suppressErrorRendering: true,
       theme: appearance === "dark" ? "dark" : "default",
     });
     initializedAppearance = appearance;

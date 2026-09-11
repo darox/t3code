@@ -42,6 +42,7 @@ describe("MermaidDiagram", () => {
       expect(mermaid.initialize).toHaveBeenCalledWith({
         securityLevel: "strict",
         startOnLoad: false,
+        suppressErrorRendering: true,
         theme: "dark",
       });
       expect(mermaid.render).toHaveBeenCalledTimes(1);
